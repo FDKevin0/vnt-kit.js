@@ -16,13 +16,20 @@
 
 var scryptsy = require('scrypt.js');
 var cryp = (typeof global === 'undefined') ? require('crypto-browserify') : require('crypto');
-var vnt = require("vnt");
-var Hash = vnt.hash;
-var utils = vnt.utils;
+var Hash = require("../utils/hash");
 var elliptic = require("elliptic");
 var uuid = require('uuid');
 
 var secp256k1 = new elliptic.ec("secp256k1");
+
+function isString(object) {
+    return typeof object === 'string' ||
+        (object && object.constructor && object.constructor.name === 'String');
+}
+
+function isObject(object) {
+    return object !== null && !(Array.isArray(object)) && typeof object === 'object';
+}
 
 function toChecksum(address) {
   var addressHash = Hash.keccak256s(address.slice(2));
@@ -48,11 +55,11 @@ function privateKeyToAccount(privateKey) {
 function decrypt(v3Keystore, password, nonStrict) {
     /* jshint maxcomplexity: 10 */
 
-    if(!utils.isString(password)) {
+    if(!isString(password)) {
         throw new Error('No password given.');
     }
 
-    var json = (utils.isObject(v3Keystore)) ? v3Keystore : JSON.parse(nonStrict ? v3Keystore.toLowerCase() : v3Keystore);
+    var json = (isObject(v3Keystore)) ? v3Keystore : JSON.parse(nonStrict ? v3Keystore.toLowerCase() : v3Keystore);
 
     if (json.version !== 3) {
         throw new Error('Not a valid V3 keystore file');
